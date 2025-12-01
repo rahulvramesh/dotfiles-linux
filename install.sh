@@ -203,21 +203,10 @@ main() {
     install_plugins
     create_symlinks
 
-    # Optional installs (skip in devcontainer)
+    # VM-only installs (skip in devcontainer)
     if [[ "$DEVCONTAINER" == false ]]; then
-        # Fonts
-        read -p "Install JetBrains Mono Nerd Font? (recommended for Powerlevel10k) [y/N] " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            install_fonts
-        fi
-
-        # Tailscale
-        read -p "Install Tailscale? (VPN for secure networking) [y/N] " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            install_tailscale
-        fi
+        install_fonts
+        install_tailscale
     fi
 
     echo ""
