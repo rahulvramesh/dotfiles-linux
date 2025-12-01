@@ -285,6 +285,19 @@ install_ai_tools() {
         success "Claude Code installed"
     fi
 
+    # GitHub Copilot CLI (requires npm)
+    if command -v github-copilot-cli >/dev/null 2>&1 || command -v ghcp >/dev/null 2>&1; then
+        success "GitHub Copilot CLI already installed"
+    else
+        if command -v npm >/dev/null 2>&1; then
+            info "Installing GitHub Copilot CLI..."
+            npm install -g @githubnext/github-copilot-cli 2>/dev/null || true
+            success "GitHub Copilot CLI installed"
+        else
+            warn "GitHub Copilot CLI skipped (npm not found)"
+        fi
+    fi
+
     success "AI coding tools installation complete"
 }
 
