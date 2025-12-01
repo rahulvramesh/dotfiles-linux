@@ -263,6 +263,33 @@ install_tailscale() {
 }
 
 # ----------------------------------------------------------------------------
+# Install AI Coding Tools (OpenCode, Claude Code)
+# ----------------------------------------------------------------------------
+install_ai_tools() {
+    info "Installing AI coding tools..."
+
+    # OpenCode (https://opencode.ai)
+    if command -v opencode >/dev/null 2>&1; then
+        success "OpenCode already installed"
+    else
+        info "Installing OpenCode..."
+        curl -fsSL https://opencode.ai/install | bash 2>/dev/null
+        success "OpenCode installed"
+    fi
+
+    # Claude Code (https://claude.ai)
+    if command -v claude >/dev/null 2>&1; then
+        success "Claude Code already installed"
+    else
+        info "Installing Claude Code..."
+        curl -fsSL https://claude.ai/install.sh | bash 2>/dev/null
+        success "Claude Code installed"
+    fi
+
+    success "AI coding tools installation complete"
+}
+
+# ----------------------------------------------------------------------------
 # Main Installation
 # ----------------------------------------------------------------------------
 main() {
@@ -282,6 +309,7 @@ main() {
     install_p10k
     install_plugins
     install_cli_tools
+    install_ai_tools
     create_symlinks
 
     # VM-only installs (skip in devcontainer)
