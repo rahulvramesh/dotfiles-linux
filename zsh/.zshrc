@@ -50,6 +50,7 @@ source "$ZSH/oh-my-zsh.sh"
 source "$DOTFILES/zsh/exports.zsh"
 source "$DOTFILES/zsh/aliases.zsh"
 source "$DOTFILES/zsh/functions.zsh"
+source "$DOTFILES/zsh/tools.zsh"
 
 # ----------------------------------------------------------------------------
 # Powerlevel10k Configuration

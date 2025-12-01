@@ -8,11 +8,19 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 alias ~='cd ~'
 
-# List files
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
-alias lh='ls -lh'
+# List files (use eza if available, fallback to ls)
+if command -v eza >/dev/null 2>&1; then
+    alias ls='eza --icons'
+    alias ll='eza -la --icons --git'
+    alias la='eza -a --icons'
+    alias l='eza --icons'
+    alias lt='eza -la --icons --tree --level=2'
+    alias lta='eza -la --icons --tree'
+else
+    alias ll='ls -alF'
+    alias la='ls -A'
+    alias l='ls -CF'
+fi
 
 # Safety nets
 alias rm='rm -i'
@@ -76,3 +84,30 @@ alias dud='du -d 1 -h'
 # Network
 alias ports='netstat -tulanp'
 alias myip='curl -s ifconfig.me'
+
+# Modern CLI tools
+# bat - better cat
+if command -v bat >/dev/null 2>&1; then
+    alias cat='bat --paging=never'
+    alias catp='bat'  # bat with pager
+fi
+
+# fd - better find
+if command -v fd >/dev/null 2>&1; then
+    alias find='fd'
+fi
+
+# ripgrep - better grep
+if command -v rg >/dev/null 2>&1; then
+    alias rg='rg --smart-case'
+fi
+
+# fzf helpers
+if command -v fzf >/dev/null 2>&1; then
+    # fzf + preview
+    alias fzfp='fzf --preview "bat --style=numbers --color=always --line-range :500 {}"'
+    # cd to selected directory
+    alias fcd='cd $(fd --type d | fzf)'
+    # open file in editor
+    alias fe='${EDITOR:-code} $(fzf)'
+fi

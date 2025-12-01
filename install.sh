@@ -160,6 +160,86 @@ install_fonts() {
 }
 
 # ----------------------------------------------------------------------------
+# Install CLI Tools
+# ----------------------------------------------------------------------------
+install_cli_tools() {
+    info "Installing CLI tools..."
+
+    # Ensure ~/.local/bin exists
+    mkdir -p "$HOME/.local/bin"
+
+    # APT packages
+    local APT_PACKAGES=(
+        fzf           # Fuzzy finder
+        ripgrep       # Better grep
+        fd-find       # Better find
+        bat           # Better cat
+        jq            # JSON processor
+        btop          # Better top/htop
+    )
+
+    info "Installing apt packages..."
+    sudo apt-get update -qq
+    sudo apt-get install -y -qq "${APT_PACKAGES[@]}" 2>/dev/null || true
+    success "APT packages installed"
+
+    # Create symlinks for differently named tools
+    # fd-find installs as 'fdfind' on Ubuntu
+    if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
+        ln -sf "$(which fdfind)" "$HOME/.local/bin/fd"
+    fi
+    # bat installs as 'batcat' on Ubuntu
+    if command -v batcat >/dev/null 2>&1 && ! command -v bat >/dev/null 2>&1; then
+        ln -sf "$(which batcat)" "$HOME/.local/bin/bat"
+    fi
+
+    # eza (modern ls replacement)
+    if command -v eza >/dev/null 2>&1; then
+        success "eza already installed"
+    else
+        info "Installing eza..."
+        sudo mkdir -p /etc/apt/keyrings
+        wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg 2>/dev/null || true
+        echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list > /dev/null
+        sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
+        sudo apt-get update -qq && sudo apt-get install -y -qq eza 2>/dev/null || true
+        success "eza installed"
+    fi
+
+    # zoxide (smarter cd)
+    if command -v zoxide >/dev/null 2>&1; then
+        success "zoxide already installed"
+    else
+        info "Installing zoxide..."
+        curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh 2>/dev/null
+        success "zoxide installed"
+    fi
+
+    # lazygit
+    if command -v lazygit >/dev/null 2>&1; then
+        success "lazygit already installed"
+    else
+        info "Installing lazygit..."
+        LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
+        curl -fsSLo /tmp/lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
+        tar xf /tmp/lazygit.tar.gz -C "$HOME/.local/bin" lazygit
+        rm /tmp/lazygit.tar.gz
+        success "lazygit installed"
+    fi
+
+    # lazydocker
+    if command -v lazydocker >/dev/null 2>&1; then
+        success "lazydocker already installed"
+    else
+        info "Installing lazydocker..."
+        curl -fsSL https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh | bash 2>/dev/null
+        success "lazydocker installed"
+    fi
+
+    success "CLI tools installation complete"
+}
+
+# ----------------------------------------------------------------------------
 # Install Tailscale (VM only)
 # ----------------------------------------------------------------------------
 install_tailscale() {
@@ -201,6 +281,7 @@ main() {
     install_omz
     install_p10k
     install_plugins
+    install_cli_tools
     create_symlinks
 
     # VM-only installs (skip in devcontainer)
