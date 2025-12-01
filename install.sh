@@ -235,6 +235,19 @@ install_cli_tools() {
         success "lazydocker installed"
     fi
 
+    # GitHub CLI (gh)
+    if command -v gh >/dev/null 2>&1; then
+        success "GitHub CLI already installed"
+    else
+        info "Installing GitHub CLI..."
+        GH_VERSION=$(curl -s "https://api.github.com/repos/cli/cli/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
+        curl -fsSLo /tmp/gh.tar.gz "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.tar.gz"
+        tar xf /tmp/gh.tar.gz -C /tmp
+        mv /tmp/gh_${GH_VERSION}_linux_amd64/bin/gh "$HOME/.local/bin/"
+        rm -rf /tmp/gh.tar.gz /tmp/gh_${GH_VERSION}_linux_amd64
+        success "GitHub CLI installed"
+    fi
+
     success "CLI tools installation complete"
 }
 
