@@ -193,16 +193,15 @@ install_cli_tools() {
         ln -sf "$(which batcat)" "$HOME/.local/bin/bat"
     fi
 
-    # eza (modern ls replacement)
+    # eza (modern ls replacement) - install from binary
     if command -v eza >/dev/null 2>&1; then
         success "eza already installed"
     else
         info "Installing eza..."
-        sudo mkdir -p /etc/apt/keyrings
-        wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg 2>/dev/null || true
-        echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list > /dev/null
-        sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
-        sudo apt-get update -qq && sudo apt-get install -y -qq eza 2>/dev/null || true
+        EZA_VERSION=$(curl -s "https://api.github.com/repos/eza-community/eza/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
+        curl -fsSLo /tmp/eza.tar.gz "https://github.com/eza-community/eza/releases/download/v${EZA_VERSION}/eza_x86_64-unknown-linux-gnu.tar.gz"
+        tar xf /tmp/eza.tar.gz -C "$HOME/.local/bin"
+        rm /tmp/eza.tar.gz
         success "eza installed"
     fi
 
