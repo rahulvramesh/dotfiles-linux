@@ -160,6 +160,29 @@ install_fonts() {
 }
 
 # ----------------------------------------------------------------------------
+# Install Tailscale (VM only)
+# ----------------------------------------------------------------------------
+install_tailscale() {
+    if [[ "$DEVCONTAINER" == true ]]; then
+        return
+    fi
+
+    if command -v tailscale >/dev/null 2>&1; then
+        success "Tailscale already installed ($(tailscale version | head -1))"
+        return
+    fi
+
+    info "Installing Tailscale..."
+    curl -fsSL https://tailscale.com/install.sh | sh
+    success "Tailscale installed"
+
+    echo ""
+    info "To start Tailscale, run:"
+    echo "  sudo tailscale up"
+    echo ""
+}
+
+# ----------------------------------------------------------------------------
 # Main Installation
 # ----------------------------------------------------------------------------
 main() {
@@ -180,12 +203,20 @@ main() {
     install_plugins
     create_symlinks
 
-    # Optional: Install fonts (skip in devcontainer)
+    # Optional installs (skip in devcontainer)
     if [[ "$DEVCONTAINER" == false ]]; then
+        # Fonts
         read -p "Install JetBrains Mono Nerd Font? (recommended for Powerlevel10k) [y/N] " -n 1 -r
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             install_fonts
+        fi
+
+        # Tailscale
+        read -p "Install Tailscale? (VPN for secure networking) [y/N] " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            install_tailscale
         fi
     fi
 
@@ -197,7 +228,12 @@ main() {
     info "Next steps:"
     echo "  1. Restart your terminal or run: source ~/.zshrc"
     echo "  2. Run 'p10k configure' to customize your prompt"
-    echo "  3. (Optional) Edit $DOTFILES/zsh/local.zsh for machine-specific config"
+    if [[ "$DEVCONTAINER" == false ]]; then
+        echo "  3. Run 'sudo tailscale up' to connect to Tailscale (if installed)"
+        echo "  4. (Optional) Edit $DOTFILES/zsh/local.zsh for machine-specific config"
+    else
+        echo "  3. (Optional) Edit $DOTFILES/zsh/local.zsh for machine-specific config"
+    fi
     echo ""
 }
 
